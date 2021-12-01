@@ -13,7 +13,7 @@ public class RyeViewController: UIViewController {
     // MARK: - Properties
     
     var window: UIWindow?
-    var ryeView: UIView!
+    var ryeView: UIView = RyeDefaultView()
     var isShowing: Bool {
         get {
             let key = "RyeViewControllerIsShowing"
@@ -38,9 +38,9 @@ public class RyeViewController: UIViewController {
     var dismissMode: Rye.DismissMode
     var viewType: Rye.ViewType
     var position: Rye.Position
-    var animationDuration: TimeInterval!
+    var animationDuration: TimeInterval = 0.3
     var ignoreSafeAreas: Bool = false
-    var animationType: Rye.AnimationType!
+    var animationType: Rye.AnimationType = .slideInOut
     var dismissCompletion: (() -> Void)? = nil
     private var dismissWorkItem: DispatchWorkItem?
     
@@ -183,11 +183,14 @@ public class RyeViewController: UIViewController {
         // trigger the dismiss based on timeAlive value
         switch dismissMode {
         case .automatic(interval: let interval):
-            dismissWorkItem = DispatchWorkItem(block: {
+            let workItem = DispatchWorkItem(block: {
                 self.dismiss()
             })
+            
+            dismissWorkItem = workItem
+            
             DispatchQueue.main.asyncAfter(deadline: .now() + interval + animationDuration,
-                                          execute: self.dismissWorkItem!)
+                                          execute: workItem)
         default:
             break
         }

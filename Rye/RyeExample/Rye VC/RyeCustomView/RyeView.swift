@@ -10,7 +10,7 @@ import UIKit
 
 class RyeView: UIView {
     
-    private var label: UILabel!
+    private var label: UILabel = UILabel()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
