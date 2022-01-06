@@ -45,12 +45,7 @@ public extension RyeViewController {
     
     func dismiss() {
         DispatchQueue.main.async {
-            guard self.isShowing else {
-                NSLog("Can not dismiss a Rye that it is not showing")
-                return
-            }
             // animate the RyeView off screen
-            
             self.animateRyeOut(completion: {
                 self.ryeView.removeFromSuperview()
                 
