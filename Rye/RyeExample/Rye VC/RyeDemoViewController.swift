@@ -56,7 +56,9 @@ class RyeDemoViewController: UITableViewController {
     
     // MARK: - TableView methods
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        switch Section(rawValue: indexPath.section)! {
+        guard let section = Section(rawValue: indexPath.section) else { return }
+        
+        switch section {
         case .introduction, .insets, .text:
             break
         case .dismissMode:
@@ -147,7 +149,7 @@ class RyeDemoViewController: UITableViewController {
     
     // MARK: - IBActions
     @IBAction func didTapGenerateMessage(_ sender: UIButton) {
-        generateMessageButton.isEnabled = false
+//        generateMessageButton.isEnabled = false
 
         let ryeConfiguration: RyeConfiguration = [
             .insets: UIEdgeInsets.init(top: uniformInset, left: uniformInset, bottom: uniformInset, right: uniformInset),

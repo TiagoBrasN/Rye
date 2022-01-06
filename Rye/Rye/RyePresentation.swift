@@ -12,59 +12,60 @@ import UIKit
 
 public extension RyeViewController {
     func show(withDismissCompletion dismissCompletion: (() -> Void)? = nil) {
-        self.dismissCompletion = dismissCompletion
-        
-        // check if we can show the RyeView
-        guard !isShowing else {
-            NSLog("A Rye alert is already showing. Multiple Ryes can not be presented at the same time")
-            return
+        DispatchQueue.main.async {
+            self.dismissCompletion = dismissCompletion
+            
+            // check if we can show the RyeView
+            guard !self.isShowing else {
+                NSLog("A Rye alert is already showing. Multiple Ryes can not be presented at the same time")
+                return
+            }
+            
+            guard let parentView = self.parentView else {
+                NSLog("A parentView could not be found to display the Rye message on. Are you trying to show a Rye message before the view lifecycle is ready to display views?")
+                return
+            }
+            
+            self.window = self.createAlertWindow()
+            
+            // update Rye state
+            self.isShowing = true
+            
+            // create RyeView
+            self.showRye(for: self.viewType)
+            
+            // force layout of the view to position the RyeView at the desired location
+            parentView.setNeedsLayout()
+            parentView.layoutIfNeeded()
+            
+            // animate the RyeView on screen
+            self.animateRyeIn()
         }
-        
-        guard let parentView = parentView else {
-            NSLog("A parentView could not be found to display the Rye message on. Are you trying to show a Rye message before the view lifecycle is ready to display views?")
-            return
-        }
-    
-        self.window = createAlertWindow()
-        
-        // update Rye state
-        isShowing = true
-        
-        // create RyeView
-        showRye(for: viewType)
-        
-        // force layout of the view to position the RyeView at the desired location
-        parentView.setNeedsLayout()
-        parentView.layoutIfNeeded()
-        
-        // animate the RyeView on screen
-        animateRyeIn()
     }
     
     func dismiss() {
-        guard isShowing else {
-            NSLog("Can not dismiss a Rye that it is not showing")
-            return
+        DispatchQueue.main.async {
+            guard self.isShowing else {
+                NSLog("Can not dismiss a Rye that it is not showing")
+                return
+            }
+            // animate the RyeView off screen
+            
+            self.animateRyeOut(completion: {
+                self.ryeView.removeFromSuperview()
+                
+                // remove the UIWindow
+                self.window?.isHidden = true
+                self.window?.removeFromSuperview()
+                self.window = nil
+                
+                // update Rye state
+                self.isShowing = false
+                
+                // call completion
+                self.dismissCompletion?()
+            })
         }
-        // animate the RyeView off screen
-        
-        animateRyeOut(completion: { [weak self] in
-            
-            guard let self = self else { return }
-            
-            self.ryeView.removeFromSuperview()
-            
-            // remove the UIWindow
-            self.window?.isHidden = true
-            self.window?.removeFromSuperview()
-            self.window = nil
-            
-            // update Rye state
-            self.isShowing = false
-                        
-            // call completion
-            self.dismissCompletion?()
-        })
     }
     
     private func createAlertWindow() -> UIWindow? {
